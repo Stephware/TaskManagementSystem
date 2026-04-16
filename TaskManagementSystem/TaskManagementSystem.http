@@ -1,0 +1,121 @@
+@TaskManagementSystem_HostAddress = http://localhost:5012
+
+GET {{TaskManagementSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+// test: login as admin (API key + JWT generation)
+POST {{TaskManagementSystem_HostAddress}}/api/auth/login
+Content-Type: application/json
+X-API-KEY: MYAPIKEY
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+###
+
+// test: login as manager (API key + JWT generation)
+POST {{TaskManagementSystem_HostAddress}}/api/auth/login
+Content-Type: application/json
+X-API-KEY: MYAPIKEY
+
+{
+  "username": "manager",
+  "password": "manager123"
+}
+
+###
+
+// test: login as employee (API key + JWT generation)
+POST {{TaskManagementSystem_HostAddress}}/api/auth/login
+Content-Type: application/json
+X-API-KEY: MYAPIKEY
+
+{
+  "username": "employee",
+  "password": "employee123"
+}
+
+###
+
+// stored JWT tokens for testing
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3NjM1MzY5N30.7fTTMMnfakyIYqSQsNobyis0uqmB0tP2r16xAEUkrGs
+@managerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWFuYWdlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1hbmFnZXIiLCJleHAiOjE3NzYzNTM3MTR9.bmYts1r8ID01Zc0NARls5giBkhF1Qx8kYYxqUogUaLc
+@employeeToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZW1wbG95ZWUiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJFbXBsb3llZSIsImV4cCI6MTc3NjM1MzczMX0.OyF0fCTVjq-jH6dXWUGZeDlFoT6ojmiLrZHrN-sPwYo
+
+###
+
+// test: admin access to admin-only endpoint (should succeed)
+GET {{TaskManagementSystem_HostAddress}}/api/admin/users
+Authorization: Bearer {{adminToken}}
+
+###
+
+// test: employee trying admin endpoint (should fail - 403)
+GET {{TaskManagementSystem_HostAddress}}/api/admin/users
+Authorization: Bearer {{employeeToken}}
+
+###
+
+// test: delete user (admin only)
+DELETE {{TaskManagementSystem_HostAddress}}/api/admin/users/2
+Authorization: Bearer {{adminToken}}
+
+###
+
+// test: delete same user again (should return 404)
+DELETE {{TaskManagementSystem_HostAddress}}/api/admin/users/2
+Authorization: Bearer {{adminToken}}
+
+###
+
+// test: get tasks (manager access allowed)
+GET {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{managerToken}}
+
+###
+
+// test: create task (manager only)
+POST {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{managerToken}}
+
+###
+
+// test: update task (manager only)
+PUT {{TaskManagementSystem_HostAddress}}/api/tasks/1
+Authorization: Bearer {{managerToken}}
+
+###
+
+// test: employee viewing tasks (allowed)
+GET {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{employeeToken}}
+
+###
+
+// test: employee creating task (should fail - 403)
+POST {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{employeeToken}}
+
+###
+
+// test: rate limiting for admin (3 req/min)
+
+###
+GET {{TaskManagementSystem_HostAddress}}/api/admin/users
+Authorization: Bearer {{adminToken}}
+
+###
+
+// test: rate limiting for employee task view (20 req/min)
+GET {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{employeeToken}}
+
+###
+
+// test: rate limiting for manager task write (10 req/min)
+POST {{TaskManagementSystem_HostAddress}}/api/tasks
+Authorization: Bearer {{managerToken}}
