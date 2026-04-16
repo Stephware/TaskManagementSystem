@@ -7,7 +7,6 @@ using TaskManagementSystem.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Retrieve JWT Key
 var jwtKey = builder.Configuration["Security:JwtKey"];
 
 if (string.IsNullOrEmpty(jwtKey))
@@ -15,10 +14,8 @@ if (string.IsNullOrEmpty(jwtKey))
     throw new Exception("JWT Key is missing in appsettings.json");
 }
 
-// Clear default claim mappings to prevent unexpected behavior
 System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-// Add Authentication with JWT Bearer
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -26,7 +23,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // Set to true in production
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
 
     options.TokenValidationParameters = new TokenValidationParameters
@@ -43,41 +40,17 @@ builder.Services.AddAuthentication(options =>
 
         RoleClaimType = ClaimTypes.Role,
         NameClaimType = ClaimTypes.Name,
-
-        // Eliminates default 5-minute clock skew
-        ClockSkew = TimeSpan.Zero
     };
 
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"JWT Authentication Failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnChallenge = context =>
-        {
-            Console.WriteLine("JWT Challenge Triggered: Unauthorized access.");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine($"JWT Token Validated for user: {context.Principal?.Identity?.Name}");
-            return Task.CompletedTask;
-        }
-    };
 });
 
-// Add Authorization
 builder.Services.AddAuthorization();
 
-// Register Services
 builder.Services.AddScoped<JwtService>();
 
-// Add Rate Limiter
 builder.Services.AddRateLimiter(options =>
 {
-    // LOGIN - 5 requests per minute per IP
+    // LOGIN - 5 requests per minute
     options.AddPolicy("LoginPolicy", context =>
         RateLimitPartition.GetFixedWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -171,16 +144,16 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// Add Controllers
 builder.Services.AddControllers();
 
-// Build Application
+
 var app = builder.Build();
 
-// Configure Middleware Pipeline
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
-// Correct Middleware Order
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

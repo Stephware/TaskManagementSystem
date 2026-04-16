@@ -17,6 +17,18 @@ namespace TaskManagementSystem.Controllers
             return Ok("Viewing tasks");
         }
 
+        [HttpGet("debug")]
+        [Authorize]
+        public IActionResult Debug()
+        {
+            return Ok(new
+            {
+                IsAuthenticated = User.Identity?.IsAuthenticated,
+                Name = User.Identity?.Name,
+                Claims = User.Claims.Select(c => new { c.Type, c.Value })
+            });
+        }
+
         [HttpPost]
         [Authorize(Roles = "Manager")]
         [EnableRateLimiting("TaskWritePolicy")]

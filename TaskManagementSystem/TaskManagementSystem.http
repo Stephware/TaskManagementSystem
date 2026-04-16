@@ -5,7 +5,7 @@ Accept: application/json
 
 ###
 
-// test: login as admin (API key + JWT generation)
+// test: login as admin (API key and JWT generation)
 POST {{TaskManagementSystem_HostAddress}}/api/auth/login
 Content-Type: application/json
 X-API-KEY: MYAPIKEY
@@ -17,7 +17,7 @@ X-API-KEY: MYAPIKEY
 
 ###
 
-// test: login as manager (API key + JWT generation)
+// test: login as manager (API key and JWT generation)
 POST {{TaskManagementSystem_HostAddress}}/api/auth/login
 Content-Type: application/json
 X-API-KEY: MYAPIKEY
@@ -29,7 +29,7 @@ X-API-KEY: MYAPIKEY
 
 ###
 
-// test: login as employee (API key + JWT generation)
+// test: login as employee (API key and JWT generation)
 POST {{TaskManagementSystem_HostAddress}}/api/auth/login
 Content-Type: application/json
 X-API-KEY: MYAPIKEY
@@ -42,19 +42,20 @@ X-API-KEY: MYAPIKEY
 ###
 
 // stored JWT tokens for testing
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3NjM1MzY5N30.7fTTMMnfakyIYqSQsNobyis0uqmB0tP2r16xAEUkrGs
-@managerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWFuYWdlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1hbmFnZXIiLCJleHAiOjE3NzYzNTM3MTR9.bmYts1r8ID01Zc0NARls5giBkhF1Qx8kYYxqUogUaLc
-@employeeToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZW1wbG95ZWUiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJFbXBsb3llZSIsImV4cCI6MTc3NjM1MzczMX0.OyF0fCTVjq-jH6dXWUGZeDlFoT6ojmiLrZHrN-sPwYo
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3NjM1NjUxN30.UEdhHB9e6iOOc_D5T59uJhl9VtY-d1CnfQog5lTCVrk
+@managerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWFuYWdlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1hbmFnZXIiLCJleHAiOjE3NzYzNTY1NDd9.Hy-_LA0RMOAmQ9370xxP5DqWGNI5tEYRSykZBSqOFz4
+@employeeToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZW1wbG95ZWUiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJFbXBsb3llZSIsImV4cCI6MTc3NjM1NjU1OH0.C9aGL-EswkkLPmB4mP1sMi3B0UYSfN19w7GkvxlgX_c
 
 ###
 
-// test: admin access to admin-only endpoint (should succeed)
+// test: admin access to admin-only endpoint (pwede dapat)
 GET {{TaskManagementSystem_HostAddress}}/api/admin/users
 Authorization: Bearer {{adminToken}}
 
 ###
 
-// test: employee trying admin endpoint (should fail - 403)
+
+// test: employee trying admin endpoint (fail - 403)
 GET {{TaskManagementSystem_HostAddress}}/api/admin/users
 Authorization: Bearer {{employeeToken}}
 
